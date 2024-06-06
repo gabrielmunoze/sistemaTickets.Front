@@ -39,14 +39,6 @@ const Todo: React.FC = () => {
     };
 
 
-
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [ticketsPerPage] = useState<number>(10);
-    const indexOfLastTicket = currentPage * ticketsPerPage;
-    const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
-
-
-
     const handleSort = () => {
         setOrderBy(orderBy === 'asc' ? 'desc' : 'asc');
     };
@@ -97,10 +89,6 @@ const Todo: React.FC = () => {
         return orderBy === 'asc' ? dateA - dateB : dateB - dateA;
     });
     
-    const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
-    const totalPages = Math.ceil(filteredTickets.length / ticketsPerPage);
-    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
   useEffect(() => {
     dispatch(fetchTickets());
   }, [dispatch]);
@@ -120,14 +108,7 @@ const Todo: React.FC = () => {
 
   const handleAddTicket = async () => {
     if (newTicket.titulo.trim() !== '') {
-      setNewTicket({
-        titulo: '',
-        descripcion: '',
-        tipo: 'Técnico',
-        fecha: '',
-        prioridad: 'Alta',
-        estado: 'Abierto'
-      });
+      
       let dataRecibida:any = {}
       const addTicket2 = httpsCallable(functions, 'addTicket2');
       await addTicket2({ newTicket }).then((result) => {
@@ -137,6 +118,14 @@ const Todo: React.FC = () => {
       });
       dispatch(addTicket(dataRecibida))
       setIsModalOpen(false);
+      setNewTicket({
+        titulo: '',
+        descripcion: '',
+        tipo: 'Técnico',
+        fecha: '',
+        prioridad: 'Alta',
+        estado: 'Abierto'
+      });
     }
   };
 
@@ -192,7 +181,7 @@ const Todo: React.FC = () => {
         onSave={handleEditModalSave}
       />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h2 className="text-xl font-bold mb-4">Add New Ticket</h2>
+        <h2 className="text-xl font-bold mb-4">Crear Ticket</h2>
         <div className="mb-4">
           <label className="block mb-2">Titulo</label>
           <input
@@ -204,7 +193,7 @@ const Todo: React.FC = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Description</label>
+          <label className="block mb-2">Descripcion</label>
           <input
             type="text"
             name="descripcion"
@@ -214,7 +203,7 @@ const Todo: React.FC = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Type</label>
+          <label className="block mb-2">Tipo</label>
           <select
             name="tipo"
             value={newTicket.tipo}
@@ -226,7 +215,7 @@ const Todo: React.FC = () => {
           </select>
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Priority</label>
+          <label className="block mb-2">Prioridad</label>
           <select
             name="prioridad"
             value={newTicket.prioridad}
@@ -239,7 +228,7 @@ const Todo: React.FC = () => {
           </select>
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Status</label>
+          <label className="block mb-2">Estado</label>
           <select
             name="estado"
             value={newTicket.estado}
@@ -289,23 +278,7 @@ const Todo: React.FC = () => {
             </tr>
           ))}
         </tbody>
-        
       </table>
-      {totalPages > 1 && (
-            <div className="flex justify-center my-4">
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => paginate(index + 1)}
-                        className={`mx-1 px-3 py-1 rounded ${
-                            currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-800'
-                        }`}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-            </div>
-        )}
     </div>
   );
 };
