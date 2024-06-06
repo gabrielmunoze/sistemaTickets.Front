@@ -33,7 +33,6 @@ const getTicket = httpsCallable(functions, 'getTicket');
 // Definir el thunk asíncrono para obtener los tickets
 export const fetchTickets = createAsyncThunk('tickets/fetchTickets', async () => {
     const result:any = await getTicket({});
-    console.log(result)
     return result.data.map((ticket: any) => ({
         ...ticket,
         fechaFiltro: new Date(ticket.fecha._seconds * 1000),
@@ -53,12 +52,6 @@ const ticketSlice = createSlice({
     initialState,
     reducers: {
         addTicket: (state, action: PayloadAction<Ticket>) => {
-            console.log(action.payload)
-            /* const getNuevoTicket = httpsCallable(functions, 'getNuevoTicket');
-            addTicket2({ newTicket }).then((result) => {
-                dataRecibida = result.data;
-                console.log(dataRecibida);
-            }); */
             state.tickets.push(action.payload);
         }
         

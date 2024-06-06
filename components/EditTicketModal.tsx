@@ -20,7 +20,6 @@ const EditTicketModal: React.FC<EditTicketModalProps> = ({ isOpen, onClose, tick
     const { name, value } = e.target;
     if (editedTicket) {
       setEditedTicket({ ...editedTicket, [name]: value });
-      console.log(editedTicket);
     }
   };
 

@@ -13,6 +13,8 @@ import EditTicketModal from '../components/EditTicketModal';
 import { initializeApp } from 'firebase/app';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
+
+
 const app = initializeApp({
   projectId: 'apisGabo',
   apiKey: 'AIzaSyBjxXSsZNWisaovHlS8aVrRA6uUbvzV2Ck',
@@ -26,9 +28,6 @@ const Todo: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('asc');
     const handleEditClick = (ticket: Ticket) => {
-        console.log(ticket.idBD)
-        console.log(ticket.titulo)
-        console.log()
         setSelectedTicket(ticket);
         
         setIsEditModalOpen(true);
@@ -38,6 +37,14 @@ const Todo: React.FC = () => {
         setSelectedTicket(null);
         setIsEditModalOpen(false);
     };
+
+
+
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [ticketsPerPage] = useState<number>(10);
+    const indexOfLastTicket = currentPage * ticketsPerPage;
+    const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
+
 
 
     const handleSort = () => {
@@ -68,7 +75,7 @@ const Todo: React.FC = () => {
         tipo: '',
         prioridad: '',
         estado: '',
-        fechaFiltro: undefined
+        fechaFiltro: null
     });
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -90,6 +97,10 @@ const Todo: React.FC = () => {
         return orderBy === 'asc' ? dateA - dateB : dateB - dateA;
     });
     
+    const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
+    const totalPages = Math.ceil(filteredTickets.length / ticketsPerPage);
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   useEffect(() => {
     dispatch(fetchTickets());
   }, [dispatch]);
@@ -103,7 +114,7 @@ const Todo: React.FC = () => {
     const updateTicket = httpsCallable(functions, 'updateTicket');
     updateTicket({ updatedTicket }).then((result) => {
       const data = result.data;
-      console.log(data);
+      window.location.reload();
     });
   };
 
@@ -121,7 +132,6 @@ const Todo: React.FC = () => {
       const addTicket2 = httpsCallable(functions, 'addTicket2');
       await addTicket2({ newTicket }).then((result) => {
         dataRecibida = result.data;
-        console.log(dataRecibida);
         dataRecibida.fechaFiltro = new Date(dataRecibida.fecha._seconds * 1000);
         dataRecibida.fecha = new Date(dataRecibida.fecha._seconds * 1000).toLocaleString();
       });
@@ -279,7 +289,23 @@ const Todo: React.FC = () => {
             </tr>
           ))}
         </tbody>
+        
       </table>
+      {totalPages > 1 && (
+            <div className="flex justify-center my-4">
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => paginate(index + 1)}
+                        className={`mx-1 px-3 py-1 rounded ${
+                            currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-800'
+                        }`}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+            </div>
+        )}
     </div>
   );
 };
